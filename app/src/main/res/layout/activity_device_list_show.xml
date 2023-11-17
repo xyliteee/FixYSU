@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".DeviceListShow">
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/DeviceBox0"
         android:layout_width="411dp"
@@ -653,7 +652,7 @@
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="140dp">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -667,6 +666,7 @@
                 android:orientation="vertical" />
         </ScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

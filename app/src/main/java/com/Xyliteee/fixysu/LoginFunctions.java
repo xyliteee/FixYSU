@@ -26,7 +26,7 @@ public class LoginFunctions {
     private String userName;
     private static LoginFunctions instance;
     CookieStore cookieStore = new BasicCookieStore();
-    private CloseableHttpClient httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+    private CloseableHttpClient httpClient = HttpClients.custom ().setDefaultCookieStore(cookieStore).build();
 
     private String  codeUrl = "https://serv.ysu.edu.cn/selfservice/common/web/verifycode.jsp";
 
