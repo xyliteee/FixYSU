@@ -12,6 +12,7 @@ import android.os.Looper;
 import android.widget.*;
 import android.view.View;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.swiperefreshlayout.widget.*;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,6 +27,7 @@ public class DeviceListShow extends AppCompatActivity {
     private TextView[] timeBoxes = new TextView[4];
     private ImageView[] imageBoxes = new ImageView[4];
     private Button[] buttonBoxes = new Button[4];
+    private SwipeRefreshLayout refreshLayout;
     private SharedPreferences sharedPreferences;
     private long mExitTime = 0;
     private boolean messageFlag = true;
@@ -110,33 +112,35 @@ public class DeviceListShow extends AppCompatActivity {
                 break;
             default:
                 currentIP = "";
-                System.out.println("SomethingWrong");
-            System.out.println("IP地址:"+currentIP);
         }
         new AlertDialog.Builder(this)
                 .setTitle("消息提示")
                 .setMessage("你确定要下线这个设备吗？")
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        ExecutorService executor = Executors.newSingleThreadExecutor();
-                        Handler handler = new Handler(Looper.getMainLooper());
-                        executor.execute(() -> {
-                            loginFunctions.KickDevice(currentIP);
-                            handler.post(() -> {
-                                System.out.println("已下线");
-                                Intent intent = new Intent(DeviceListShow.this, LoadingActivity.class);
-                                startActivity(intent);
-                            });
+                .setPositiveButton("确定", (dialog, which) -> {
+                    ExecutorService executor = Executors.newSingleThreadExecutor();
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    executor.execute(() -> {
+                        loginFunctions.KickDevice(currentIP);
+                        handler.post(() -> {
+                            Intent intent = new Intent(DeviceListShow.this, LoadingActivity.class);
+                            startActivity(intent);
                         });
+                    });
 
-                    }
                 })
                 .setNegativeButton("取消", null)
                 .show();
 
     }
 
+
     private void InitWidgets(){
+        refreshLayout = findViewById(R.id.refreshLayout);
+        refreshLayout.setOnRefreshListener(() -> {
+            Intent intent = new Intent(DeviceListShow.this, LoadingActivity.class);
+            startActivity(intent);
+            refreshLayout.setRefreshing(false);
+        });
         deviceBoxes[0] = (ConstraintLayout) findViewById(R.id.DeviceBox0);
         deviceBoxes[1] = (ConstraintLayout)findViewById(R.id.DeviceBox1);
         deviceBoxes[2] = (ConstraintLayout) findViewById(R.id.DeviceBox2);
@@ -172,15 +176,8 @@ public class DeviceListShow extends AppCompatActivity {
         buttonBoxes[2] = (Button) findViewById(R.id.Button2);
         buttonBoxes[3] = (Button) findViewById(R.id.Button3);
         for (int i = 0;i<4;i++){
-            System.out.println(buttonBoxes[i].getId());
-            buttonBoxes[i].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    KickDevice(view);
-                }
-            });
+            buttonBoxes[i].setOnClickListener(this::KickDevice);
         }
-
         for (int i=0;i<4;i++){
             deviceBoxes[i].setVisibility(View.INVISIBLE);
         }

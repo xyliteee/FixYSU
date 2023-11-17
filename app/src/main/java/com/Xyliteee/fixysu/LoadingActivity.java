@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 public class LoadingActivity extends AppCompatActivity {
     private Device[] devicesList;
     private LoginFunctions loginFunctions;
+
     @Override
     public void onBackPressed() {
     }
@@ -22,6 +23,7 @@ public class LoadingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_loading);
         loginFunctions = LoginFunctions.getInstance();
         GetDevicesList();
+
     }
 
     public void GetDevicesList(){
@@ -32,7 +34,6 @@ public class LoadingActivity extends AppCompatActivity {
             final Device[]devices = loginFunctions.GetDevicesList();
             handler.post(() -> {
                 devicesList = devices;
-                Device d = devicesList[0];
                 Intent intent = new Intent(LoadingActivity.this, DeviceListShow.class);
                 intent.putExtra("devicesList",devicesList);
                 startActivity(intent);

@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
             public void onPageFinished(WebView view, String url) {
                 mWebview.evaluateJavascript("javascript:callTest('" + password + "')", value -> {
                     encryptedPassword = value.replace("\"","");
-                    System.out.println(username+encryptedPassword+verifyCode);
                     JudgeLogin();
                 });
             }
@@ -110,11 +109,9 @@ public class MainActivity extends AppCompatActivity {
             final String judgeHtml = loginFunctions.JudgeLogin(username,encryptedPassword,verifyCode);
             handler.post(() -> {
                 if(judgeHtml.contains("verifyError=true")){
-                    System.out.println("验证码错误");
                     ShowLoginMessage("验证码错误");
                 }
                 else if (judgeHtml.contains("errorMsg=用户不存在或密码错误")) {
-                    System.out.println("用户不存在或密码错误");
                     ShowLoginMessage("用户不存在或密码错误");
                 }
                 else {
@@ -136,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
         executor.execute(() -> {
             try{Thread.sleep(5000);}catch (Exception ignored){}
             handler.post(() -> {
-                System.out.println(loadingCodeFlag);
                 if (loadingCodeFlag == 0){
                     Toast.makeText(MainActivity.this, "获取验证码超时，检查网络连接", Toast.LENGTH_LONG).show();
                 }

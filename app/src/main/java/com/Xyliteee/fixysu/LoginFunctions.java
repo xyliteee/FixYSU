@@ -10,6 +10,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.client5.http.cookie.*;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
@@ -20,15 +21,17 @@ import java.util.List;
 import java.util.regex.*;
 import java.io.InputStream;
 
+
 public class LoginFunctions {
     private String userName;
     private static LoginFunctions instance;
-    private CloseableHttpClient httpClient = HttpClients.createDefault();
+    CookieStore cookieStore = new BasicCookieStore();
+    private CloseableHttpClient httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+
     private String  codeUrl = "https://serv.ysu.edu.cn/selfservice/common/web/verifycode.jsp";
+
     private String judgeUrl = "https://serv.ysu.edu.cn/selfservice/module/scgroup/web/login_judge.jsf";
     private String onlineDevicesUrl = "https://serv.ysu.edu.cn/selfservice/module/webcontent/web/onlinedevice_list.jsf";
-    private LoginFunctions() {
-    }
 
     public static LoginFunctions getInstance() {
         if (instance == null) {
@@ -58,13 +61,13 @@ public class LoginFunctions {
         HttpPost httpPost = new HttpPost(judgeUrl);
         httpPost.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36");
         List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("from", "rsa")); // 添加键值对
+        params.add(new BasicNameValuePair("from", "rsa"));
         params.add(new BasicNameValuePair("name", userName));
         params.add(new BasicNameValuePair("password", encryptedPassword));
         params.add(new BasicNameValuePair("verify", verifyCode));
         params.add(new BasicNameValuePair("verifyMsg", ""));
         httpPost.setEntity(new UrlEncodedFormEntity(params));
-        try (CloseableHttpResponse response = httpClient.execute(httpPost)) { // 使用原先创建的httpClient来执行请求
+        try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
             HttpEntity entity = response.getEntity();
             result = EntityUtils.toString(entity);
             EntityUtils.consume(entity);
@@ -73,11 +76,9 @@ public class LoginFunctions {
         }
         return result;
     }
-
     public Device[] GetDevicesList(){
         Device[] devices = new Device[10];
         int index = 0;
-        String result = "114514";
         String devicesHtml = null;
         HttpGet httpGet = new HttpGet(onlineDevicesUrl);
         httpGet.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36");
@@ -94,7 +95,6 @@ public class LoginFunctions {
         Matcher matcher = pattern.matcher(devicesHtml);
         while (matcher.find()) {
             String single = matcher.group(1);
-            //System.out.println(single);
             if (single.contains("divdiv")){
                 String deviceID = single.replace("divdiv", "");
                 devices[index] = new Device(); // 创建并实例化Device对象
@@ -121,13 +121,12 @@ public class LoginFunctions {
         return devices;
     }
 
-    public int KickDevice(String IP){
+    public void KickDevice(String IP){
         String url = "https://serv.ysu.edu.cn/selfservice/module/userself/web/userself_ajax.jsf?methodName=indexBean.kickUserBySelfForAjax";
         HttpPost httpPost = new HttpPost(url);
         httpPost.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36");
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("key", this.userName+":"+IP));
-        System.out.println(this.userName+":"+IP);
         httpPost.setEntity(new UrlEncodedFormEntity(params));
         try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
             HttpEntity entity = response.getEntity();
@@ -135,7 +134,6 @@ public class LoginFunctions {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return 0;
     }
     public String Re(String regex,String input){
         String result = "null";
