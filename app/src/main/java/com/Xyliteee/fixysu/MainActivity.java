@@ -22,10 +22,12 @@ public class MainActivity extends AppCompatActivity {
     private String verifyCode;
     private LoginFunctions loginFunctions;
     private SharedPreferences sharedPreferences;
-    private int loadingCodeFlag;
+    private int loadingCodeFlag = 0;
     private long mExitTime = 0;
     private long mRefreshTime = 0;
+    private boolean autoLogin;
     private ImageButton reFreshButton;
+    private Switch autoLoginSwitch;
     @Override
     public void onBackPressed() {
         if ((System.currentTimeMillis() - mExitTime) > 2000) {
@@ -41,17 +43,32 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        loadingCodeFlag = 0;
         sharedPreferences = this.getSharedPreferences("loginPrefs", MODE_PRIVATE);
+        passwordBox = findViewById(R.id.PasswordBox);
         usernameBox = findViewById(R.id.UsernameBox);
         usernameBox.setText(sharedPreferences.getString("username",""));
-        passwordBox = findViewById(R.id.PasswordBox);
         passwordBox.setText(sharedPreferences.getString("password",""));
         mWebview = findViewById(R.id.webView);
         verifyCodeBox = findViewById(R.id.VerificationCodeBox);
         loginFunctions = LoginFunctions.getInstance();
         reFreshButton = findViewById(R.id.button2);
-        GetVerifyCodeImage();
+        autoLoginSwitch = findViewById(R.id.AutoLoginSwitch);
+        autoLogin = sharedPreferences.getBoolean("autoLogin",false);
+        Intent intent = getIntent();
+        boolean backFromOtherPages = intent.getBooleanExtra("backFromOtherPages",false);
+        AutoLoginCheck();//检测修改的，不影响主要逻辑
+        autoLoginSwitch.setChecked(autoLogin);//确保开关和布尔一致
+        if (backFromOtherPages){
+            GetVerifyCodeImage();
+        }
+        else{
+            if (autoLogin){
+                AutoLogin();
+            }
+            else{
+                GetVerifyCodeImage();
+            }
+        }
     }
 
     public void Login(View view){
@@ -101,6 +118,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void AutoLogin(){
+        Toast.makeText(MainActivity.this, "登陆成功", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(MainActivity.this, LoadingActivity.class);
+        intent.putExtra("autoLogin",true);
+        startActivity(intent);
+    }
+
     public void JudgeLogin(){
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
@@ -115,12 +139,13 @@ public class MainActivity extends AppCompatActivity {
                     ShowLoginMessage("用户不存在或密码错误");
                 }
                 else {
-                    Toast.makeText(MainActivity.this, "登陆成功", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "跳转中", Toast.LENGTH_SHORT).show();
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("username",username);
                     editor.putString("password",password);
                     editor.apply();
                     Intent intent = new Intent(MainActivity.this, LoadingActivity.class);
+                    intent.putExtra("autoLogin",false);
                     startActivity(intent);
                 }
             });
@@ -143,12 +168,11 @@ public class MainActivity extends AppCompatActivity {
     public void ShowMessage(View view){
         new AlertDialog.Builder(this)
                 .setTitle("关于软件的使用")
-                .setMessage("请在接入学校网络后再使用该软件（无需登录学校网络，但鉴于大部分手机没有登录网络后会直接走流量，因此还是建议至少先登录校园网，或者关闭流量）；\n由于本人之前没有任何JAVA与安卓开发经历，加上这是一个未经广泛调试测试的0测版本，可能有非常多的bug和不确定问题，请发送给我Log我试着解决；\n荷取可爱捏😋")
+                .setMessage("请在接入学校网络后再使用该软件（无需登录学校网络，但鉴于大部分手机没有登录网络后会直接走流量，因此还是建议至少先登录校园网，或者关闭流量）；\n在经历了不少优化与debug后，应该可靠性高不少了，但一定存在仍未解决的问题或者待优化，希望告之；\n荷取可爱捏😋")
                 .setPositiveButton("确定", (dialog, which) -> {
                 })
                 .show();
     }
-
     public void ShowLoginMessage(String msg){
         new AlertDialog.Builder(this)
                 .setTitle("消息提示")
@@ -157,7 +181,14 @@ public class MainActivity extends AppCompatActivity {
                 .show();
 
     }
-
+    private void AutoLoginCheck(){
+        autoLoginSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            autoLogin = isChecked;
+            editor.putBoolean("autoLogin",isChecked);
+            editor.apply();
+        });
+    }
 }
 
 

@@ -29,17 +29,18 @@ public class DeviceListShow extends AppCompatActivity {
     private Button[] buttonBoxes = new Button[4];
     private SwipeRefreshLayout refreshLayout;
     private SharedPreferences sharedPreferences;
-    private long mExitTime = 0;
     private boolean messageFlag = true;
+    private long mExitTime = 0;
     @Override
     public void onBackPressed() {
         if ((System.currentTimeMillis() - mExitTime) > 2000) {
-            Toast.makeText(DeviceListShow.this, "再次操作以返回桌面", Toast.LENGTH_SHORT).show();
+            Toast.makeText(DeviceListShow.this, "再次操作以返回登陆界面", Toast.LENGTH_SHORT).show();
             mExitTime = System.currentTimeMillis();
         }
         else{
-            this.finish();
-            System.exit(0);
+        Intent intent = new Intent(DeviceListShow.this, MainActivity.class);
+        intent.putExtra("backFromOtherPages",true);
+        startActivity(intent);
         }
     }
     @Override
@@ -54,6 +55,12 @@ public class DeviceListShow extends AppCompatActivity {
 
         if (devicesList[0].deviceName.equals("无设备")){
             Intent intent2 = new Intent(DeviceListShow.this, nodevice.class);
+            startActivity(intent2);
+        }
+        else if(devicesList[0].deviceName.equals("登陆失败")){
+            Toast.makeText(DeviceListShow.this, "登录失败，请重新登录", Toast.LENGTH_SHORT).show();
+            Intent intent2 = new Intent(DeviceListShow.this, MainActivity.class);
+            intent2.putExtra("backFromOtherPages",true);
             startActivity(intent2);
         }
         else{

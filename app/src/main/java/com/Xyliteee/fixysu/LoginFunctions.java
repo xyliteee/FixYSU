@@ -24,6 +24,8 @@ import java.io.InputStream;
 
 public class LoginFunctions {
     private String userName;
+    private String encryptedPassword;
+    public String cookieValue;
     private static LoginFunctions instance;
     CookieStore cookieStore = new BasicCookieStore();
     private CloseableHttpClient httpClient = HttpClients.custom ().setDefaultCookieStore(cookieStore).build();
@@ -58,6 +60,7 @@ public class LoginFunctions {
     public String JudgeLogin(String userName, String encryptedPassword, String verifyCode) {
         String result = null;
         this.userName = userName;
+        this.encryptedPassword = encryptedPassword;
         HttpPost httpPost = new HttpPost(judgeUrl);
         httpPost.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36");
         List<NameValuePair> params = new ArrayList<>();
@@ -76,6 +79,15 @@ public class LoginFunctions {
         }
         return result;
     }
+
+    public void GetCookie(){
+        cookieValue = "init";
+        for(Cookie cookie:cookieStore.getCookies()){
+            cookieValue = cookie.getValue();
+        }
+        cookieValue = "JSESSIONID="+cookieValue;
+    }
+
     public Device[] GetDevicesList(){
         Device[] devices = new Device[10];
         int index = 0;
@@ -87,37 +99,42 @@ public class LoginFunctions {
             HttpEntity entity = response.getEntity();
             devicesHtml = EntityUtils.toString(entity);
             EntityUtils.consume(entity);
+            String regex = "id=\"([^\"]*)\"";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(devicesHtml);
+            while (matcher.find()) {
+                String single = matcher.group(1);
+                if (single.contains("divdiv")){
+                    String deviceID = single.replace("divdiv", "");
+                    devices[index] = new Device(); // 创建并实例化Device对象
+                    devices[index].deviceID = deviceID;
+                    index++;
+                }
+            }
+
+            devices = Arrays.stream(devices).filter(Objects::nonNull).toArray(Device[]::new);
+            if (devices.length == 0){
+                devices = new Device[1];
+                devices[0] = new Device();
+                devices[0].deviceName ="无设备";
+            }
+            else{
+                for (Device device :devices){
+                    String name = Re("<input id=\"inputId" + device.deviceID + "\" type=\"hidden\" value=\"(.*?)\">",devicesHtml);
+                    String IP = Re("<input id=\"userIp4" + device.deviceID + "\" type=\"hidden\" value=\"(.*?)\">",devicesHtml);
+                    String MAC = Re("<input id=\"usermac" + device.deviceID + "\" type=\"hidden\" value=\"(.*?)\">",devicesHtml);
+                    String time = Re("<input id=\"createTimeStr" + device.deviceID + "\" type=\"hidden\" value=\"(.*?)\">",devicesHtml);
+                    device.deviceName = name;device.ipAddress = IP;device.macAddress = MAC;device.lastOnlineTime = time;
+                }
+            }
+            GetCookie();
         }catch (IOException |ParseException e){
             e.printStackTrace();
-        }
-        String regex = "id=\"([^\"]*)\"";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(devicesHtml);
-        while (matcher.find()) {
-            String single = matcher.group(1);
-            if (single.contains("divdiv")){
-                String deviceID = single.replace("divdiv", "");
-                devices[index] = new Device(); // 创建并实例化Device对象
-                devices[index].deviceID = deviceID;
-                index++;
-            }
-        }
-
-        devices = Arrays.stream(devices).filter(Objects::nonNull).toArray(Device[]::new);
-        if (devices.length == 0){
             devices = new Device[1];
             devices[0] = new Device();
-            devices[0].deviceName ="无设备";
+            devices[0].deviceName ="登陆失败";
         }
-        else{
-            for (Device device :devices){
-            String name = Re("<input id=\"inputId" + device.deviceID + "\" type=\"hidden\" value=\"(.*?)\">",devicesHtml);
-            String IP = Re("<input id=\"userIp4" + device.deviceID + "\" type=\"hidden\" value=\"(.*?)\">",devicesHtml);
-            String MAC = Re("<input id=\"usermac" + device.deviceID + "\" type=\"hidden\" value=\"(.*?)\">",devicesHtml);
-            String time = Re("<input id=\"createTimeStr" + device.deviceID + "\" type=\"hidden\" value=\"(.*?)\">",devicesHtml);
-            device.deviceName = name;device.ipAddress = IP;device.macAddress = MAC;device.lastOnlineTime = time;
-            }
-        }
+
         return devices;
     }
 
@@ -144,4 +161,63 @@ public class LoginFunctions {
         }
         return result;
     }
+
+    public Device[] AutoGetDevicesList(String inputCookieValue){
+        Device[] devices = new Device[10];
+        int index = 0;
+        String devicesHtml = null;
+        HttpGet httpGet = new HttpGet(onlineDevicesUrl);
+        httpGet.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36");
+        httpGet.addHeader("Cookie",inputCookieValue);
+        System.out.println(inputCookieValue);
+        try {
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            HttpEntity entity = response.getEntity();
+            devicesHtml = EntityUtils.toString(entity);
+            EntityUtils.consume(entity);
+            if(devicesHtml.contains("您还未登录或会话过期")){
+                devices = new Device[1];
+                devices[0] = new Device();
+                devices[0].deviceName ="登陆失败";
+            }
+            else{
+                String regex = "id=\"([^\"]*)\"";
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(devicesHtml);
+                while (matcher.find()) {
+                    String single = matcher.group(1);
+                    if (single.contains("divdiv")){
+                        String deviceID = single.replace("divdiv", "");
+                        devices[index] = new Device(); // 创建并实例化Device对象
+                        devices[index].deviceID = deviceID;
+                        index++;
+                    }
+                }
+
+                devices = Arrays.stream(devices).filter(Objects::nonNull).toArray(Device[]::new);
+                if (devices.length == 0){
+                    devices = new Device[1];
+                    devices[0] = new Device();
+                    devices[0].deviceName ="无设备";
+                }
+                else{
+                    for (Device device :devices){
+                        String name = Re("<input id=\"inputId" + device.deviceID + "\" type=\"hidden\" value=\"(.*?)\">",devicesHtml);
+                        String IP = Re("<input id=\"userIp4" + device.deviceID + "\" type=\"hidden\" value=\"(.*?)\">",devicesHtml);
+                        String MAC = Re("<input id=\"usermac" + device.deviceID + "\" type=\"hidden\" value=\"(.*?)\">",devicesHtml);
+                        String time = Re("<input id=\"createTimeStr" + device.deviceID + "\" type=\"hidden\" value=\"(.*?)\">",devicesHtml);
+                        device.deviceName = name;device.ipAddress = IP;device.macAddress = MAC;device.lastOnlineTime = time;
+                    }
+                }
+                GetCookie();
+            }
+        }catch (IOException |ParseException e){
+            e.printStackTrace();
+            devices = new Device[1];
+            devices[0] = new Device();
+            devices[0].deviceName ="登陆失败";
+        }
+        return devices;
+    }
+
 }
