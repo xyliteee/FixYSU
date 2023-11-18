@@ -101,20 +101,20 @@ public class DeviceListShow extends AppCompatActivity {
     }
 
     private void KickDevice(View view){
-        int Index;
         int buttonID = view.getId();
+        System.out.println(view.getTransitionName());
         String currentIP;
         switch (buttonID){
-            case 2131230724:
+            case 2131230725:
                 currentIP = devicesList[0].ipAddress;
                 break;
-            case 2131230725:
+            case 2131230726:
                 currentIP = devicesList[1].ipAddress;
                 break;
-            case 2131230726:
+            case 2131230727:
                 currentIP = devicesList[2].ipAddress;
                 break;
-            case 2131230727:
+            case 2131230728:
                 currentIP = devicesList[3].ipAddress;
                 break;
             default:
@@ -182,6 +182,9 @@ public class DeviceListShow extends AppCompatActivity {
         buttonBoxes[1] = (Button) findViewById(R.id.Button1);
         buttonBoxes[2] = (Button) findViewById(R.id.Button2);
         buttonBoxes[3] = (Button) findViewById(R.id.Button3);
+        //for (int i =0;i<4;i++){
+            //System.out.println(buttonBoxes[i].getId());
+        //}
         for (int i = 0;i<4;i++){
             buttonBoxes[i].setOnClickListener(this::KickDevice);
         }
