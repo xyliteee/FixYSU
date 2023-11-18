@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void AutoLogin(){
-        Toast.makeText(MainActivity.this, "登陆成功", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "自动登录", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(MainActivity.this, LoadingActivity.class);
         intent.putExtra("autoLogin",true);
         startActivity(intent);
