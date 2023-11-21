@@ -3,7 +3,6 @@ package com.Xyliteee.fixysu;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -20,13 +19,13 @@ import java.util.concurrent.Executors;
 public class DeviceListShow extends AppCompatActivity {
     public Device[] devicesList;
     private LoginFunctions loginFunctions;
-    private ConstraintLayout[] deviceBoxes = new ConstraintLayout[4];
-    private TextView[] ipBoxes = new TextView[4];
-    private TextView[] nameBoxes = new TextView[4];
-    private TextView[] macBoxes = new TextView[4];
-    private TextView[] timeBoxes = new TextView[4];
-    private ImageView[] imageBoxes = new ImageView[4];
-    private Button[] buttonBoxes = new Button[4];
+    private final ConstraintLayout[] deviceBoxes = new ConstraintLayout[4];
+    private final TextView[] ipBoxes = new TextView[4];
+    private final TextView[] nameBoxes = new TextView[4];
+    private final TextView[] macBoxes = new TextView[4];
+    private final TextView[] timeBoxes = new TextView[4];
+    private final ImageView[] imageBoxes = new ImageView[4];
+    private final Button[] buttonBoxes = new Button[4];
     private SwipeRefreshLayout refreshLayout;
     private SharedPreferences sharedPreferences;
     private boolean messageFlag = true;
@@ -99,27 +98,7 @@ public class DeviceListShow extends AppCompatActivity {
                     .show();
         }
     }
-
-    private void KickDevice(View view){
-        int Index;
-        int buttonID = view.getId();
-        String currentIP;
-        switch (buttonID){
-            case 2131230724:
-                currentIP = devicesList[0].ipAddress;
-                break;
-            case 2131230725:
-                currentIP = devicesList[1].ipAddress;
-                break;
-            case 2131230726:
-                currentIP = devicesList[2].ipAddress;
-                break;
-            case 2131230727:
-                currentIP = devicesList[3].ipAddress;
-                break;
-            default:
-                currentIP = "";
-        }
+    private void Downline(String currentIP){
         new AlertDialog.Builder(this)
                 .setTitle("消息提示")
                 .setMessage("你确定要下线这个设备吗？")
@@ -137,6 +116,25 @@ public class DeviceListShow extends AppCompatActivity {
                 })
                 .setNegativeButton("取消", null)
                 .show();
+    }
+    private void KickDevice0(View view){
+        String currentIP = devicesList[0].ipAddress;
+        Downline(currentIP);
+
+    }
+    private void KickDevice1(View view){
+        String currentIP = devicesList[1].ipAddress;
+        Downline(currentIP);
+
+    }
+    private void KickDevice2(View view){
+        String currentIP = devicesList[2].ipAddress;
+        Downline(currentIP);
+
+    }
+    private void KickDevice3(View view){
+        String currentIP = devicesList[3].ipAddress;
+        Downline(currentIP);
 
     }
 
@@ -148,43 +146,44 @@ public class DeviceListShow extends AppCompatActivity {
             startActivity(intent);
             refreshLayout.setRefreshing(false);
         });
-        deviceBoxes[0] = (ConstraintLayout) findViewById(R.id.DeviceBox0);
-        deviceBoxes[1] = (ConstraintLayout)findViewById(R.id.DeviceBox1);
-        deviceBoxes[2] = (ConstraintLayout) findViewById(R.id.DeviceBox2);
-        deviceBoxes[3] = (ConstraintLayout)findViewById(R.id.DeviceBox3);
+        deviceBoxes[0] = findViewById(R.id.DeviceBox0);
+        deviceBoxes[1] = findViewById(R.id.DeviceBox1);
+        deviceBoxes[2] = findViewById(R.id.DeviceBox2);
+        deviceBoxes[3] = findViewById(R.id.DeviceBox3);
 
-        ipBoxes[0] = (TextView) findViewById(R.id.IPBox0);
-        ipBoxes[1] = (TextView) findViewById(R.id.IPBox1);
-        ipBoxes[2] = (TextView) findViewById(R.id.IPBox2);
-        ipBoxes[3] = (TextView) findViewById(R.id.IPBox3);
+        ipBoxes[0] = findViewById(R.id.IPBox0);
+        ipBoxes[1] = findViewById(R.id.IPBox1);
+        ipBoxes[2] =  findViewById(R.id.IPBox2);
+        ipBoxes[3] =  findViewById(R.id.IPBox3);
 
-        nameBoxes[0] = (TextView)findViewById(R.id.NameBox0);
-        nameBoxes[1] = (TextView) findViewById(R.id.NameBox1);
-        nameBoxes[2] = (TextView)findViewById(R.id.NameBox2);
-        nameBoxes[3] = (TextView) findViewById(R.id.NameBox3);
+        nameBoxes[0] = findViewById(R.id.NameBox0);
+        nameBoxes[1] =  findViewById(R.id.NameBox1);
+        nameBoxes[2] = findViewById(R.id.NameBox2);
+        nameBoxes[3] =  findViewById(R.id.NameBox3);
 
-        macBoxes[0] = (TextView) findViewById(R.id.MacBox0);
-        macBoxes[1] = (TextView) findViewById(R.id.MacBox1);
-        macBoxes[2] = (TextView) findViewById(R.id.MacBox2);
-        macBoxes[3] = (TextView) findViewById(R.id.MacBox3);
+        macBoxes[0] =  findViewById(R.id.MacBox0);
+        macBoxes[1] =  findViewById(R.id.MacBox1);
+        macBoxes[2] =  findViewById(R.id.MacBox2);
+        macBoxes[3] =  findViewById(R.id.MacBox3);
 
-        timeBoxes[0] = (TextView) findViewById(R.id.TimeBox0);
-        timeBoxes[1] = (TextView) findViewById(R.id.TimeBox1);
-        timeBoxes[2] = (TextView) findViewById(R.id.TimeBox2);
-        timeBoxes[3] = (TextView) findViewById(R.id.TimeBox3);
+        timeBoxes[0] =  findViewById(R.id.TimeBox0);
+        timeBoxes[1] =  findViewById(R.id.TimeBox1);
+        timeBoxes[2] =  findViewById(R.id.TimeBox2);
+        timeBoxes[3] =  findViewById(R.id.TimeBox3);
 
-        imageBoxes[0] = (ImageView) findViewById(R.id.Image0);
-        imageBoxes[1] = (ImageView) findViewById(R.id.Image1);
-        imageBoxes[2] = (ImageView) findViewById(R.id.Image2);
-        imageBoxes[3] = (ImageView) findViewById(R.id.Image3);
+        imageBoxes[0] =  findViewById(R.id.Image0);
+        imageBoxes[1] =  findViewById(R.id.Image1);
+        imageBoxes[2] =  findViewById(R.id.Image2);
+        imageBoxes[3] =  findViewById(R.id.Image3);
 
-        buttonBoxes[0] = (Button) findViewById(R.id.Button0);
-        buttonBoxes[1] = (Button) findViewById(R.id.Button1);
-        buttonBoxes[2] = (Button) findViewById(R.id.Button2);
-        buttonBoxes[3] = (Button) findViewById(R.id.Button3);
-        for (int i = 0;i<4;i++){
-            buttonBoxes[i].setOnClickListener(this::KickDevice);
-        }
+        buttonBoxes[0] =  findViewById(R.id.Button0);
+        buttonBoxes[1] =  findViewById(R.id.Button1);
+        buttonBoxes[2] =  findViewById(R.id.Button2);
+        buttonBoxes[3] =  findViewById(R.id.Button3);
+        buttonBoxes[0].setOnClickListener(this::KickDevice0);
+        buttonBoxes[1].setOnClickListener(this::KickDevice1);
+        buttonBoxes[2].setOnClickListener(this::KickDevice2);
+        buttonBoxes[3].setOnClickListener(this::KickDevice3);
         for (int i=0;i<4;i++){
             deviceBoxes[i].setVisibility(View.INVISIBLE);
         }
