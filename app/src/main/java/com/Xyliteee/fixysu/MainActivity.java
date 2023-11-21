@@ -1,4 +1,5 @@
 package com.Xyliteee.fixysu;
+import android.annotation.SuppressLint;
 import android.graphics.*;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private long mRefreshTime = 0;
     private boolean autoLogin;
     private ImageButton reFreshButton;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     private Switch autoLoginSwitch;
     @Override
     public void onBackPressed() {
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         GetEncryptedPassword(password);//获取加密后的密码并且调用爬虫登录
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private void GetEncryptedPassword(String password){
         mWebview.getSettings().setJavaScriptEnabled(true);
         mWebview.setWebViewClient(new WebViewClient() {
@@ -119,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void AutoLogin(){
-        Toast.makeText(MainActivity.this, "登陆成功", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "自动登录", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(MainActivity.this, LoadingActivity.class);
         intent.putExtra("autoLogin",true);
         startActivity(intent);
