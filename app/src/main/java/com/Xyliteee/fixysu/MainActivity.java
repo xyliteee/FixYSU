@@ -108,11 +108,12 @@ public class MainActivity extends AppCompatActivity {
         mRefreshTime = System.currentTimeMillis();
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
-
+        loadingCodeFlag = 0;
         executor.execute(() -> {
             LoadingCodeCheck();
             final Bitmap bitmap = loginFunctions.GetVerifyCode();
             handler.post(() -> {
+                if(bitmap == null){return;}
                 loadingCodeFlag = 1;
                 reFreshButton.setPadding(0, 0, 0, 0);
                 reFreshButton.setScaleType(ImageView.ScaleType.FIT_XY);
