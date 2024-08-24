@@ -113,11 +113,14 @@ public class MainActivity extends AppCompatActivity {
             LoadingCodeCheck();
             final Bitmap bitmap = loginFunctions.GetVerifyCode();
             handler.post(() -> {
-                if(bitmap == null){return;}
-                loadingCodeFlag = 1;
-                reFreshButton.setPadding(0, 0, 0, 0);
-                reFreshButton.setScaleType(ImageView.ScaleType.FIT_XY);
-                reFreshButton.setImageBitmap(bitmap);
+                if(bitmap != null)
+                {
+                    loadingCodeFlag = 1;
+                    reFreshButton.setAlpha(1.0f);
+                    reFreshButton.setPadding(0, 0, 0, 0);
+                    reFreshButton.setScaleType(ImageView.ScaleType.FIT_XY);
+                    reFreshButton.setImageBitmap(bitmap);
+                }
             });
         });
     }

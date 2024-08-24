@@ -24,11 +24,11 @@ import java.io.InputStream;
 
 public class LoginFunctions {
     private String userName;
-    private String encryptedPassword;
+
     public String cookieValue;
     private static LoginFunctions instance;
     CookieStore cookieStore = new BasicCookieStore();
-    private CloseableHttpClient httpClient = HttpClients.custom ().setDefaultCookieStore(cookieStore).build();
+    private final CloseableHttpClient httpClient = HttpClients.custom ().setDefaultCookieStore(cookieStore).build();
 
     private String  codeUrl = "https://serv.ysu.edu.cn/selfservice/common/web/verifycode.jsp";
 
@@ -60,7 +60,6 @@ public class LoginFunctions {
     public String JudgeLogin(String userName, String encryptedPassword, String verifyCode) {
         String result = null;
         this.userName = userName;
-        this.encryptedPassword = encryptedPassword;
         HttpPost httpPost = new HttpPost(judgeUrl);
         httpPost.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36");
         List<NameValuePair> params = new ArrayList<>();
