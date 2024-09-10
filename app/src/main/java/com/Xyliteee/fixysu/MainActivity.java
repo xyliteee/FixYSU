@@ -21,7 +21,6 @@ public class MainActivity extends AppCompatActivity {
     private String password;
     private String username;
     private String verifyCode;
-    private LoginFunctions loginFunctions;
     private SharedPreferences sharedPreferences;
     private int loadingCodeFlag = 0;
     private long mExitTime = 0;
@@ -52,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
         passwordBox.setText(sharedPreferences.getString("password",""));
         mWebview = findViewById(R.id.webView);
         verifyCodeBox = findViewById(R.id.VerificationCodeBox);
-        loginFunctions = LoginFunctions.getInstance();
         reFreshButton = findViewById(R.id.button2);
         autoLoginSwitch = findViewById(R.id.AutoLoginSwitch);
         autoLogin = sharedPreferences.getBoolean("autoLogin",false);
@@ -111,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         loadingCodeFlag = 0;
         executor.execute(() -> {
             LoadingCodeCheck();
-            final Bitmap bitmap = loginFunctions.GetVerifyCode();
+            final Bitmap bitmap = LoginFunctions.GetVerifyCode();
             handler.post(() -> {
                 if(bitmap != null)
                 {
@@ -137,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         Handler handler = new Handler(Looper.getMainLooper());
 
         executor.execute(() -> {
-            final String judgeHtml = loginFunctions.JudgeLogin(username,encryptedPassword,verifyCode);
+            final String judgeHtml = LoginFunctions.JudgeLogin(username,encryptedPassword,verifyCode);
             handler.post(() -> {
                 if(judgeHtml.contains("verifyError=true")){
                     ShowLoginMessage("验证码错误");

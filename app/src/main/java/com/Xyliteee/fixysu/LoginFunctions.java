@@ -23,26 +23,18 @@ import java.io.InputStream;
 
 
 public class LoginFunctions {
-    private String userName;
+    private static String UserName;
 
-    public String cookieValue;
+    public static String cookieValue;
     private static LoginFunctions instance;
-    CookieStore cookieStore = new BasicCookieStore();
-    private final CloseableHttpClient httpClient = HttpClients.custom ().setDefaultCookieStore(cookieStore).build();
+    private final static  CookieStore cookieStore = new BasicCookieStore();
+    private static final CloseableHttpClient httpClient = HttpClients.custom ().setDefaultCookieStore(cookieStore).build();
 
-    private String  codeUrl = "https://serv.ysu.edu.cn/selfservice/common/web/verifycode.jsp";
+    private static final String onlineDevicesUrl = "https://serv.ysu.edu.cn/selfservice/module/webcontent/web/onlinedevice_list.jsf";
 
-    private String judgeUrl = "https://serv.ysu.edu.cn/selfservice/module/scgroup/web/login_judge.jsf";
-    private String onlineDevicesUrl = "https://serv.ysu.edu.cn/selfservice/module/webcontent/web/onlinedevice_list.jsf";
-
-    public static LoginFunctions getInstance() {
-        if (instance == null) {
-            instance = new LoginFunctions();
-        }
-        return instance;
-    }
-    public Bitmap GetVerifyCode(){
+    public static Bitmap GetVerifyCode(){
         Bitmap verifyCodeImage = null;
+        String codeUrl = "https://serv.ysu.edu.cn/selfservice/common/web/verifycode.jsp";
         HttpGet httpGet = new HttpGet(codeUrl);
         httpGet.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36");
         try {
@@ -57,9 +49,10 @@ public class LoginFunctions {
         }
         return verifyCodeImage;
     }
-    public String JudgeLogin(String userName, String encryptedPassword, String verifyCode) {
+    public static String JudgeLogin(String userName, String encryptedPassword, String verifyCode) {
         String result = null;
-        this.userName = userName;
+        UserName = userName;
+        String judgeUrl = "https://serv.ysu.edu.cn/selfservice/module/scgroup/web/login_judge.jsf";
         HttpPost httpPost = new HttpPost(judgeUrl);
         httpPost.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36");
         List<NameValuePair> params = new ArrayList<>();
@@ -79,7 +72,7 @@ public class LoginFunctions {
         return result;
     }
 
-    public void GetCookie(){
+    public static void GetCookie(){
         cookieValue = "init";
         for(Cookie cookie:cookieStore.getCookies()){
             cookieValue = cookie.getValue();
@@ -87,7 +80,7 @@ public class LoginFunctions {
         cookieValue = "JSESSIONID="+cookieValue;
     }
 
-    public Device[] GetDevicesList(){
+    public static Device[] GetDevicesList(){
         Device[] devices = new Device[10];
         int index = 0;
         String devicesHtml = null;
@@ -137,12 +130,12 @@ public class LoginFunctions {
         return devices;
     }
 
-    public void KickDevice(String IP){
+    public static void KickDevice(String IP){
         String url = "https://serv.ysu.edu.cn/selfservice/module/userself/web/userself_ajax.jsf?methodName=indexBean.kickUserBySelfForAjax";
         HttpPost httpPost = new HttpPost(url);
         httpPost.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36");
         List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("key", this.userName+":"+IP));
+        params.add(new BasicNameValuePair("key", UserName+":"+IP));
         httpPost.setEntity(new UrlEncodedFormEntity(params));
         try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
             HttpEntity entity = response.getEntity();
@@ -151,7 +144,7 @@ public class LoginFunctions {
             e.printStackTrace();
         }
     }
-    public String Re(String regex,String input){
+    public static String Re(String regex,String input){
         String result = "null";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
@@ -161,7 +154,7 @@ public class LoginFunctions {
         return result;
     }
 
-    public Device[] AutoGetDevicesList(String inputCookieValue){
+    public static Device[] AutoGetDevicesList(String inputCookieValue){
         Device[] devices = new Device[10];
         int index = 0;
         String devicesHtml = null;

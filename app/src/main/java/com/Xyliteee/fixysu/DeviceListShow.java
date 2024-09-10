@@ -18,7 +18,6 @@ import java.util.concurrent.Executors;
 
 public class DeviceListShow extends AppCompatActivity {
     public Device[] devicesList;
-    private LoginFunctions loginFunctions;
     private final ConstraintLayout[] deviceBoxes = new ConstraintLayout[4];
     private final TextView[] ipBoxes = new TextView[4];
     private final TextView[] nameBoxes = new TextView[4];
@@ -69,7 +68,6 @@ public class DeviceListShow extends AppCompatActivity {
                 devicesList = p;
             }
                 int deviceNumbers = devicesList.length;
-                loginFunctions = LoginFunctions.getInstance();
                 for(int i = 0;i<deviceNumbers;i++){
                     ipBoxes[i].setText(devicesList[i].ipAddress);
                     nameBoxes[i].setText(devicesList[i].deviceName);
@@ -106,7 +104,7 @@ public class DeviceListShow extends AppCompatActivity {
                     ExecutorService executor = Executors.newSingleThreadExecutor();
                     Handler handler = new Handler(Looper.getMainLooper());
                     executor.execute(() -> {
-                        loginFunctions.KickDevice(currentIP);
+                        LoginFunctions.KickDevice(currentIP);
                         handler.post(() -> {
                             Intent intent = new Intent(DeviceListShow.this, LoadingActivity.class);
                             startActivity(intent);

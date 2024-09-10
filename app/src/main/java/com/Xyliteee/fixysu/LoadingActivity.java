@@ -14,7 +14,6 @@ import java.util.concurrent.Executors;
 
 public class LoadingActivity extends AppCompatActivity {
     private Device[] devicesList;
-    private LoginFunctions loginFunctions;
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -24,7 +23,6 @@ public class LoadingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
-        loginFunctions = LoginFunctions.getInstance();
         sharedPreferences = this.getSharedPreferences("loginPrefs", MODE_PRIVATE);
         Intent intent = getIntent();
         boolean autoLogin = intent.getBooleanExtra("autoLogin",false);
@@ -39,7 +37,7 @@ public class LoadingActivity extends AppCompatActivity {
 
         executor.execute(() -> {
             String inputCookieValue = sharedPreferences.getString("cookieValue","");
-            final Device[] devices = loginFunctions.AutoGetDevicesList(inputCookieValue);
+            final Device[] devices = LoginFunctions.AutoGetDevicesList(inputCookieValue);
             handler.post(() -> {
                 devicesList = devices;
                 Intent intent = new Intent(LoadingActivity.this, DeviceListShow.class);
@@ -54,11 +52,11 @@ public class LoadingActivity extends AppCompatActivity {
         Handler handler = new Handler(Looper.getMainLooper());
 
         executor.execute(() -> {
-            final Device[] devices = loginFunctions.GetDevicesList();
+            final Device[] devices = LoginFunctions.GetDevicesList();
             handler.post(() -> {
                 devicesList = devices;
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("cookieValue", loginFunctions.cookieValue);
+                editor.putString("cookieValue", LoginFunctions.cookieValue);
                 editor.apply();
                 Intent intent = new Intent(LoadingActivity.this, DeviceListShow.class);
                 intent.putExtra("devicesList",devicesList);
