@@ -12,6 +12,9 @@ import android.view.View;
 import java.util.concurrent.*;
 import android.app.AlertDialog;
 import android.content.*;
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
+
 public class MainActivity extends AppCompatActivity {
     private EditText usernameBox;
     private EditText passwordBox;
@@ -25,50 +28,39 @@ public class MainActivity extends AppCompatActivity {
     private int loadingCodeFlag = 0;
     private long mExitTime = 0;
     private long mRefreshTime = 0;
-    private boolean autoLogin;
     private ImageButton reFreshButton;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
-    private Switch autoLoginSwitch;
-    @Override
-    public void onBackPressed() {
-        if ((System.currentTimeMillis() - mExitTime) > 2000) {
-            Toast.makeText(MainActivity.this, "再次操作以返回桌面", Toast.LENGTH_SHORT).show();
-            mExitTime = System.currentTimeMillis();
-        }
-        else{
-            this.finish();
-            System.exit(0);
-        }
-    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setupOnBackPressedCallback();
         sharedPreferences = this.getSharedPreferences("loginPrefs", MODE_PRIVATE);
         passwordBox = findViewById(R.id.PasswordBox);
         usernameBox = findViewById(R.id.UsernameBox);
-        usernameBox.setText(sharedPreferences.getString("username",""));
-        passwordBox.setText(sharedPreferences.getString("password",""));
+        usernameBox.setText(sharedPreferences.getString("username", ""));
+        passwordBox.setText(sharedPreferences.getString("password", ""));
         mWebview = findViewById(R.id.webView);
         verifyCodeBox = findViewById(R.id.VerificationCodeBox);
         reFreshButton = findViewById(R.id.button2);
-        autoLoginSwitch = findViewById(R.id.AutoLoginSwitch);
-        autoLogin = sharedPreferences.getBoolean("autoLogin",false);
-        Intent intent = getIntent();
-        boolean backFromOtherPages = intent.getBooleanExtra("backFromOtherPages",false);
-        AutoLoginCheck();//检测修改的，不影响主要逻辑
-        autoLoginSwitch.setChecked(autoLogin);//确保开关和布尔一致
-        if (backFromOtherPages){
-            GetVerifyCodeImage();
-        }
-        else{
-            if (autoLogin){
-                AutoLogin();
+        GetVerifyCodeImage();
+    }
+
+    private void setupOnBackPressedCallback() {
+        OnBackPressedDispatcher dispatcher = getOnBackPressedDispatcher();
+        dispatcher.addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if ((System.currentTimeMillis() - mExitTime) > 2000) {
+                    Toast.makeText(MainActivity.this, "再次操作以返回桌面", Toast.LENGTH_SHORT).show();
+                    mExitTime = System.currentTimeMillis();
+                } else {
+                    finish();
+                    System.exit(0);
+                }
             }
-            else{
-                GetVerifyCodeImage();
-            }
-        }
+        });
     }
 
     public void Login(View view){
@@ -121,13 +113,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         });
-    }
-
-    private void AutoLogin(){
-        Toast.makeText(MainActivity.this, "自动登录", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(MainActivity.this, LoadingActivity.class);
-        intent.putExtra("autoLogin",true);
-        startActivity(intent);
     }
 
     public void JudgeLogin(){
@@ -185,14 +170,6 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("确定", (dialog, which) -> GetVerifyCodeImage())
                 .show();
 
-    }
-    private void AutoLoginCheck(){
-        autoLoginSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            autoLogin = isChecked;
-            editor.putBoolean("autoLogin",isChecked);
-            editor.apply();
-        });
     }
 }
 

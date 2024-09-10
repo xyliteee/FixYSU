@@ -156,7 +156,7 @@
 
         <Button
             android:id="@+id/Button0"
-            android:layout_width="380dp"
+            android:layout_width="340dp"
             android:layout_height="40dp"
             android:layout_marginBottom="4dp"
             android:text="下线"
@@ -316,7 +316,7 @@
 
         <Button
             android:id="@+id/Button1"
-            android:layout_width="380dp"
+            android:layout_width="340dp"
             android:layout_height="40dp"
             android:layout_marginBottom="4dp"
             android:text="下线"
@@ -476,7 +476,7 @@
 
         <Button
             android:id="@+id/Button2"
-            android:layout_width="380dp"
+            android:layout_width="340dp"
             android:layout_height="40dp"
             android:layout_marginBottom="4dp"
             android:text="下线"
@@ -636,7 +636,7 @@
 
         <Button
             android:id="@+id/Button3"
-            android:layout_width="380dp"
+            android:layout_width="340dp"
             android:layout_height="40dp"
             android:layout_marginBottom="4dp"
             android:text="下线"

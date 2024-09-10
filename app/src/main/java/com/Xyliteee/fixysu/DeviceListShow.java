@@ -1,5 +1,7 @@
 package com.Xyliteee.fixysu;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
@@ -29,18 +31,7 @@ public class DeviceListShow extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private boolean messageFlag = true;
     private long mExitTime = 0;
-    @Override
-    public void onBackPressed() {
-        if ((System.currentTimeMillis() - mExitTime) > 2000) {
-            Toast.makeText(DeviceListShow.this, "再次操作以返回登陆界面", Toast.LENGTH_SHORT).show();
-            mExitTime = System.currentTimeMillis();
-        }
-        else{
-        Intent intent = new Intent(DeviceListShow.this, MainActivity.class);
-        intent.putExtra("backFromOtherPages",true);
-        startActivity(intent);
-        }
-    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +41,7 @@ public class DeviceListShow extends AppCompatActivity {
         devicesList = (Device[]) intent.getSerializableExtra("devicesList");
         sharedPreferences = this.getSharedPreferences("showMessageFlag", MODE_PRIVATE);
         messageFlag = sharedPreferences.getBoolean("messageFlag",true);
-
+        setupOnBackPressedCallback();
         if (devicesList[0].deviceName.equals("无设备")){
             Intent intent2 = new Intent(DeviceListShow.this, nodevice.class);
             startActivity(intent2);
@@ -62,24 +53,44 @@ public class DeviceListShow extends AppCompatActivity {
             startActivity(intent2);
         }
         else{
-            if(devicesList.length > 4){
-                Device[] p = new Device[4];
-                System.arraycopy(devicesList, 0, p, 0, 4);
-                devicesList = p;
-            }
-                int deviceNumbers = devicesList.length;
-                for(int i = 0;i<deviceNumbers;i++){
-                    ipBoxes[i].setText(devicesList[i].ipAddress);
-                    nameBoxes[i].setText(devicesList[i].deviceName);
-                    macBoxes[i].setText(devicesList[i].macAddress);
-                    timeBoxes[i].setText(devicesList[i].lastOnlineTime);
-                    if (devicesList[i].deviceName.contains("电脑")){imageBoxes[i].setImageResource(R.drawable.computer_show);}
-                    else if (devicesList[i].deviceName.contains("安卓")) {imageBoxes[i].setImageResource(R.drawable.phone_show);}
-                    else{imageBoxes[i].setImageResource(R.drawable.phone_show);}
-                    deviceBoxes[i].setVisibility(View.VISIBLE);
-                }
+            UpDateDevices();
             }
         ShowMessage();
+    }
+    private void setupOnBackPressedCallback() {
+        OnBackPressedDispatcher dispatcher = getOnBackPressedDispatcher();
+        dispatcher.addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if ((System.currentTimeMillis() - mExitTime) > 2000) {
+                    Toast.makeText(DeviceListShow.this, "再次操作以返回登陆界面", Toast.LENGTH_SHORT).show();
+                    mExitTime = System.currentTimeMillis();
+                } else {
+                    Intent intent = new Intent(DeviceListShow.this, MainActivity.class);
+                    intent.putExtra("backFromOtherPages", true);
+                    startActivity(intent);
+                }
+            }
+        });
+    }
+    private void UpDateDevices()
+    {
+        if(devicesList.length > 4){
+            Device[] p = new Device[4];
+            System.arraycopy(devicesList, 0, p, 0, 4);
+            devicesList = p;
+        }
+        int deviceNumbers = devicesList.length;
+        for(int i = 0;i<deviceNumbers;i++){
+            ipBoxes[i].setText(devicesList[i].ipAddress);
+            nameBoxes[i].setText(devicesList[i].deviceName);
+            macBoxes[i].setText(devicesList[i].macAddress);
+            timeBoxes[i].setText(devicesList[i].lastOnlineTime);
+            if (devicesList[i].deviceName.contains("电脑")){imageBoxes[i].setImageResource(R.drawable.computer_show);}
+            else if (devicesList[i].deviceName.contains("安卓")) {imageBoxes[i].setImageResource(R.drawable.phone_show);}
+            else{imageBoxes[i].setImageResource(R.drawable.phone_show);}
+            deviceBoxes[i].setVisibility(View.VISIBLE);
+        }
     }
 
     private void ShowMessage(){
